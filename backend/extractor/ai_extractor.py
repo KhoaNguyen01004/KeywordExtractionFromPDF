@@ -116,57 +116,73 @@ class AIExtractor:
         start_time = time.time()
         
         try:
-            # Prepare prompt for extraction
-            prompt = """Extract logistics information from this Vietnamese customs/logistics document.
+            # Prepare prompt for extraction - Bilingual Vietnamese/English
+            prompt = """Extract logistics information from this document.
 
-IMPORTANT: This is a Vietnamese customs document. You MUST extract ALL fields below. Read the entire document carefully.
+**CRITICAL: This document contains BOTH Vietnamese AND English text. You MUST extract from BOTH languages!**
 
-CRITICAL: EXTRACT THE COMPLETE VALUE AFTER EACH LABEL, NOT PARTIAL!
-- For "Địa điểm lưu kho": Extract EVERYTHING on the same line (e.g., "02CIS01 TONG CTY TAN CANG SG")
-- For "Địa điểm dỡ hàng": Extract COMPLETE place name (e.g., "VNCLI CANG CAT LAI (HCM)")
-- DO NOT truncate values - extract EVERY word!
+**LANGUAGE REQUIREMENTS:**
+- Look for field labels in Vietnamese: "Số vận đơn", "Người xuất khẩu", "Người nhập khẩu", "Mã số hàng hóa", "Địa điểm lưu kho", "Địa điểm dỡ hàng", "Ngày hàng đến", "Ngày hàng đi", "Số container", "Số seal", "Số lượng", "Trọng lượng", "Số hóa đơn", "Tên tàu", "Mã bộ phận xử lý tờ khai"
+- Look for field labels in English: "B/L No", "Shipper", "Consignee", "HS Code", "Warehouse Location", "Discharge Place", "Arrival Date", "Departure Date", "Container No", "Seal No", "Quantity", "Weight", "Invoice No", "Vessel", "Declaration Office Code"
+- The SAME information may appear in BOTH languages - extract whichever you find
 
-YOU MUST INCLUDE ALL THESE FIELDS IN YOUR JSON RESPONSE:
-1. "doc_type": Must be one of: Invoice, Packing List, Bill of Lading, Customs Declaration
-2. "Địa điểm lưu kho" - COMPLETE value including code AND name
-3. "Địa điểm dỡ hàng" - COMPLETE value
-4. "Ngày hàng đến" - Format: DD/MM/YYYY
-5. "Ngày hàng đi" - Format: DD/MM/YYYY
-6. "Số vận đơn" - Complete number
-7. "Mã số hàng hóa" - Complete code
-8. "Người xuất khẩu" - Full company name
-9. "Người nhập khẩu" - Full company name
-10. "Mã bộ phận xử lý tờ khai"
-11. "Số container"
-12. "Số seal"
-13. "Số lượng"
-14. "Trọng lượng"
-15. "Số hóa đơn"
-16. "Tên tàu"
+**CRITICAL EXTRACTION RULES:**
+1. EXTRACT THE COMPLETE VALUE - don't truncate or skip any part!
+2. For "Địa điểm lưu kho" / "Warehouse Location": Extract EVERYTHING (e.g., "02CIS01 TONG CTY TAN CANG SG")
+3. For "Địa điểm dỡ hàng" / "Discharge Place": Extract COMPLETE place (e.g., "VNCLI CANG CAT LAI (HCM)")
+4. For company names: Extract the FULL company name, don't abbreviate
+5. For addresses: Extract the complete address including all text
+6. For numbers/codes: Extract every digit/character exactly as shown
 
-IMPORTANT: Your JSON response MUST include ALL fields including doc_type. Don't skip any fields!
+**YOU MUST INCLUDE ALL THESE FIELDS IN YOUR JSON (extract from either Vietnamese OR English labels):**
 
-JSON format:
+| Field | Vietnamese Label | English Label |
+|-------|-----------------|---------------|
+| doc_type | Loại tài liệu | Document Type |
+| bl_no | Số vận đơn | B/L No, Bill of Lading No |
+| invoice_no | Số hóa đơn | Invoice No |
+| shipper | Người xuất khẩu | Shipper, Exporter |
+| consignee | Người nhập khẩu | Consignee, Importer |
+| vessel | Tên tàu | Vessel |
+| hs_code | Mã số hàng hóa | HS Code, Commodity Code |
+| declaration_office_code | Mã bộ phận xử lý tờ khai | Declaration Office Code |
+| warehouse_location | Địa điểm lưu kho | Warehouse Location |
+| discharge_place | Địa điểm dỡ hàng | Discharge Place, Place of Discharge |
+| departure_date | Ngày hàng đi | Departure Date, ETD |
+| arrival_date | Ngày hàng đến | Arrival Date, ETA |
+| total_packages | Số lượng | Quantity, Packages, No. of Packages |
+| total_weight | Trọng lượng | Weight, Gross Weight |
+| container_no | Số container | Container No |
+| seal_no | Số seal | Seal No |
+
+**JSON OUTPUT FORMAT:**
 {
-  "doc_type": "Invoice" or "Packing List" or "Bill of Lading" or "Customs Declaration",
-  "warehouse_location": "COMPLETE warehouse location with code and name",
-  "discharge_place": "COMPLETE discharge place with all text",
-  "arrival_date": "DD/MM/YYYY or null",
-  "departure_date": "DD/MM/YYYY or null",
-  "bl_no": "Complete B/L number or null",
-  "hs_code": "Complete HS code or null",
-  "shipper": "Complete exporter name or null",
-  "consignee": "Complete importer name or null",
-  "declaration_office_code": "Complete code or null",
-  "invoice_no": "Invoice number or null",
-  "vessel": "Vessel name or null",
-  "total_weight": number or null,
-  "total_packages": number or null,
-  "containers": [{"container_no": "...", "seal_no": "..."}] or [],
-  "hs_code_suggestions": ["HS code"] or []
+  "doc_type": "Invoice" | "Packing List" | "Bill of Lading" | "Customs Declaration",
+  "bl_no": "Complete B/L number",
+  "invoice_no": "Invoice number", 
+  "shipper": "Full company name",
+  "consignee": "Full company name",
+  "vessel": "Vessel name",
+  "hs_code": "Complete HS code (e.g., 8471.30.00)",
+  "declaration_office_code": "Code",
+  "warehouse_location": "Complete warehouse location with code and name",
+  "discharge_place": "Complete discharge place",
+  "departure_date": "DD/MM/YYYY or date format found",
+  "arrival_date": "DD/MM/YYYY or date format found",
+  "total_packages": number,
+  "total_weight": number,
+  "containers": [{"container_no": "...", "seal_no": "..."}],
+  "hs_code_suggestions": ["HS code"]
 }
 
-Extract EVERY WORD - don't skip or truncate anything! Include ALL fields in the JSON!"""
+**IMPORTANT:** 
+- If a field appears in BOTH Vietnamese and English, extract the value only once
+- If one language is incomplete, check the other language
+- NEVER return null if the value exists somewhere in the document
+- Check EVERY PAGE thoroughly - information may be spread across multiple pages
+- Extract ALL container numbers if multiple containers exist"""
+
+
             
             # Call Gemini API without unsupported `config` keys to avoid 400 INVALID_ARGUMENT
             response = self.client.models.generate_content(

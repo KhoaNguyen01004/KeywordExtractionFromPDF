@@ -31,6 +31,7 @@ class PDFProcessor:
     def extract_text(self, pdf_document: fitz.Document) -> str:
         """
         Extract text from all pages of a PDF document.
+        Uses multiple extraction methods to capture all text including Vietnamese characters.
         
         Args:
             pdf_document: PyMuPDF Document object
@@ -39,9 +40,41 @@ class PDFProcessor:
             Combined text from all pages
         """
         full_text = ""
+        
         for page_num in range(len(pdf_document)):
             page = pdf_document[page_num]
-            full_text += page.get_text() + "\n"
+            
+            # Method 1: Basic text extraction
+            text = page.get_text()
+            
+            # Method 2: Get text blocks for better structure
+            blocks = page.get_text("blocks")
+            block_text = ""
+            for block in blocks:
+                if len(block) >= 5:
+                    block_text += block[4] + "\n"
+            
+            # Method 3: Get text in dict format for more control
+            dict_text = page.get_text("dict")
+            dict_text_merged = ""
+            if dict_text and "blocks" in dict_text:
+                for block in dict_text["blocks"]:
+                    if "lines" in block:
+                        for line in block["lines"]:
+                            for span in line.get("spans", []):
+                                dict_text_merged += span.get("text", "")
+                            dict_text_merged += "\n"
+            
+            # Combine all methods - take the longest to ensure we get everything
+            page_texts = [text.strip(), block_text.strip(), dict_text_merged.strip()]
+            best_text = max(page_texts, key=len) if any(p for p in page_texts) else ""
+            
+            if best_text:
+                full_text += best_text + "\n"
+            else:
+                # Fallback to basic
+                full_text += page.get_text() + "\n"
+        
         return full_text
     
     def extract_text_from_page(self, pdf_document: fitz.Document, page_num: int) -> str:

@@ -80,48 +80,8 @@ function removeFile() {
     document.getElementById('fileInput').value = '';
 }
 
-// Export functions to global scope for onclick handlers
-window.extractSingle = function () {
-    extractSingle(selectedFile);
-};
-
-window.saveComparison = function () {
-    saveComparisonData();
-};
-
-window.refreshHistory = function () {
-    refreshHistory();
-};
-
-window.viewSession = function (sessionId) {
-    viewSession(sessionId);
-};
-
-window.loadMoreHistory = function () {
-    loadMoreHistory();
-};
-
-window.generateReport = function () {
-    generateReport();
-};
-
-window.copyResults = function () {
-    copyResults();
-};
-
-window.exportResults = function () {
-    exportResults();
-};
-
-window.toggleDarkMode = toggleDarkMode;
-
-window.switchTab = switchTab;
-
-window.removeFile = function () {
-    removeFile();
-};
-
-window.updateComparisonData = function (input) {
-    updateComparisonData(input);
-};
+// Export functions to global scope for onclick handlers in HTML
+// Note: The actual implementations are in api.js (loaded before app.js)
+// handleExtractClick and handleRemoveFile are also defined in api.js
+// These are fallback definitions in case api.js hasn't loaded
 

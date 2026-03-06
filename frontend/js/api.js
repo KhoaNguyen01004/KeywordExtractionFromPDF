@@ -208,3 +208,31 @@ async function refreshHistory() {
     showToast('Đã cập nhật lịch sử');
 }
 
+// Export functions to global scope for onclick handlers in HTML
+// Wrapper function to handle file extraction from UI
+window.handleExtractClick = function () {
+    // Get the selectedFile from global scope (defined in config.js)
+    if (typeof selectedFile === 'undefined' || !selectedFile) {
+        showError('Vui lòng chọn 1 file PDF trước');
+        return;
+    }
+    // Call the extractSingle function defined in this file (api.js)
+    extractSingle(selectedFile);
+};
+
+// Wrapper for remove file
+window.handleRemoveFile = function () {
+    removeFile();
+};
+
+window.saveComparison = saveComparisonData;
+window.refreshHistory = refreshHistory;
+window.viewSession = viewSession;
+window.loadMoreHistory = loadMoreHistory;
+window.generateReport = generateReport;
+window.copyResults = copyResults;
+window.exportResults = exportResults;
+window.toggleDarkMode = toggleDarkMode;
+window.switchTab = switchTab;
+window.updateComparisonData = updateComparisonData;
+
