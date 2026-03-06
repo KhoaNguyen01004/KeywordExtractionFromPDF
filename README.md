@@ -1,3 +1,13 @@
+---
+title: Logistics Data Extraction
+emoji: 📦
+colorFrom: blue
+colorTo: indigo
+sdk: docker
+app_file: app.py
+pinned: false
+---
+
 # Logistics Data Extraction & Validation System
 
 A comprehensive web application for intelligent extraction and validation of logistics data from Vietnamese customs documents. Features advanced AI-powered OCR, cross-document validation, database storage, and professional reporting capabilities.
@@ -279,4 +289,3 @@ docker run -p 5000:5000 --env-file .env logistics-extraction
 ## License
 
 MIT License
-
