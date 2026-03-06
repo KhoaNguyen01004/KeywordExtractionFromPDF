@@ -6,9 +6,10 @@ Contains all configurable settings including extraction keys.
 import os
 
 # Flask settings
+# Railway provides PORT as an environment variable
 FLASK_HOST = '0.0.0.0'
-FLASK_PORT = 5000
-FLASK_DEBUG = True
+FLASK_PORT = int(os.getenv('PORT', 5000))
+FLASK_DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
 
 # Frontend path (relative to backend directory)
 FRONTEND_PATH = '../frontend'
