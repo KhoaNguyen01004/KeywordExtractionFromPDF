@@ -1,0 +1,53 @@
+# Git
+.git
+.gitignore
+
+# Python
+__pycache__
+*.py[cod]
+*$py.class
+*.so
+.Python
+venv
+.venv
+env
+.env
+
+# IDE
+.vscode
+.idea
+*.swp
+*.swo
+
+# Testing
+.pytest_cache
+.coverage
+htmlcov
+.tox
+
+# Documentation
+*.md
+!README.md
+API_DOCUMENTATION.md
+CHANGELOG.md
+SETUP_GUIDE.md
+IMPLEMENTATION_SUMMARY.md
+
+# Examples and tests
+example_usage.py
+test_fix.py
+test_imports.py
+TODO.md
+TODO_PLAN.md
+TODO_PROGRESS.md
+
+# Frontend (if not needed in container)
+frontend
+
+# PDF examples
+pdf_examples
+
+# Local database
+*.db
+*.sqlite
+

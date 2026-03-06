@@ -1,3 +1,8 @@
+# PyTorch CPU-only index - must be before any other package references
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch
+torchvision
+
 Flask==3.0.0
 Flask-CORS==4.0.0
 PyMuPDF==1.23.8
